@@ -51,6 +51,31 @@ function App() {
         });
     }
 
+    function handleUpdateEvent(eventId, updatedEvent) {
+        return fetch(`http://localhost:5000/api/events/${eventId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(updatedEvent)
+        })
+            .then((response) => response.json().then((data) => ({
+                ok: response.ok,
+                data,
+            })))
+            .then(({ ok, data }) => {
+                if (!ok) {
+                    throw new Error(data.message || "Unable to update event");
+                }
+
+                setEvents((currentEvents) => currentEvents.map((event) => {
+                    return event.id === eventId ? data : event;
+                }));
+
+                return data;
+            });
+    }
+
     return (
         <div>
             <Navbar />
@@ -82,6 +107,7 @@ function App() {
                     element={
                         <EventDetailsPage
                             events={events}
+                            onUpdateEvent={handleUpdateEvent}
                         />
                     }
                 />

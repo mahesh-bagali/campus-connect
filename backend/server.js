@@ -76,6 +76,43 @@ app.post("/api/events", (req, res)=>{
     res.status(201).json(newEvent);
 })
 
+app.put("/api/events/:id", (req, res)=>{
+    const eventId = Number(req.params.id);
+    const eventIndex = initialEvents.findIndex((event) => event.id === eventId);
+    const requiredFields = [
+        "title",
+        "category",
+        "date",
+        "time",
+        "location",
+        "description",
+    ];
+
+    const hasMissingField = requiredFields.some((field) => {
+        return typeof req.body[field] !== "string" || !req.body[field].trim();
+    });
+
+    if (eventIndex === -1) {
+        return res.status(404).json({
+            message: "Event Not Found",
+        });
+    }
+
+    if (hasMissingField) {
+        return res.status(400).json({
+            message: "All event fields are required",
+        });
+    }
+
+    const updatedEvent = {
+        id: eventId,
+        ...req.body,
+    };
+
+    initialEvents[eventIndex] = updatedEvent;
+    res.json(updatedEvent);
+})
+
 app.delete("/api/events/:id", (req, res)=>{
     const eventId = Number(req.params.id);
     const eventIndex = initialEvents.findIndex(function(event){
