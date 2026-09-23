@@ -14,7 +14,11 @@ function EventSection({
   const filteredEvents = events.filter(function (
     event
   ) {
-    const matchesSearch = event.title
+    const eventTitle = typeof event.title === "string"
+      ? event.title
+      : "";
+
+    const matchesSearch = eventTitle
       .toLowerCase()
       .includes(searchText.toLowerCase());
 

@@ -24,15 +24,31 @@ function App() {
     }, []);
 
     function handleAddEvent(newEvent) {
-        setEvents([...events, newEvent]);
+        fetch("http://localhost:5000/api/events", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newEvent)
+        })
+        .then((response)=>response.json())
+        .then((data)=>{
+            setEvents([...events, data]);
+        });
     }
 
     function handleDeleteEvent(eventId) {
-        const updatedEvents = events.filter(function (event) {
-            return event.id !== eventId;
+        fetch(`http://localhost:5000/api/events/${eventId}`, {
+            method: "DELETE"
+        }).then((response)=>response.json())
+        .then((data)=>{
+            console.log(data);
+            fetch("http://localhost:5000/api/events")
+            .then((response)=>response.json())
+            .then((data)=>{
+                setEvents(data);
+            });
         });
-
-        setEvents(updatedEvents);
     }
 
     return (

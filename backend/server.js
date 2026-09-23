@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 const initialEvents = [
   {
@@ -42,6 +43,37 @@ app.get("/", (req, res)=>{
 
 app.get("/api/events", (req, res)=>{
     res.json(initialEvents);
+})
+
+app.post("/api/events", (req, res)=>{
+    const requiredFields = [
+        "title",
+        "category",
+        "date",
+        "time",
+        "location",
+        "description",
+    ];
+
+    const hasMissingField = requiredFields.some((field) => {
+        return typeof req.body[field] !== "string" || !req.body[field].trim();
+    });
+
+    if (hasMissingField) {
+        return res.status(400).json({
+            message: "All event fields are required",
+        });
+    }
+
+    const newEvent = {
+        id: initialEvents.length
+            ? Math.max(...initialEvents.map((event) => event.id)) + 1
+            : 1,
+        ...req.body,
+    };
+
+    initialEvents.push(newEvent);
+    res.status(201).json(newEvent);
 })
 
 app.delete("/api/events/:id", (req, res)=>{
