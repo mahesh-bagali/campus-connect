@@ -48,6 +48,7 @@ function App() {
             .then((response)=>response.json())
             .then((data)=>{
                 setEvents(data);
+                setEditingEvent(null);
             });
         });
     }
