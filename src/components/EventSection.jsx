@@ -4,6 +4,7 @@ import EventCard from "./EventCard";
 function EventSection({
   events,
   onDeleteEvent,
+  onEditEvent,
 }) {
   const [searchText, setSearchText] =
     useState("");
@@ -110,6 +111,7 @@ function EventSection({
                 location={event.location}
                 description={event.description}
                 onDeleteEvent={onDeleteEvent}
+                onEditEvent={onEditEvent}
               />
             );
           })}

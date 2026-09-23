@@ -1,15 +1,21 @@
 import { useState } from "react";
 
-function EventForm({ onAddEvent }) {
+function EventForm({ onAddEvent, onUpdateEvent, editingEvent }) {
   const [formData, setFormData] = useState({
-    title: "",
-    category: "",
-    date: "",
-    time: "",
-    location: "",
-    description: "",
+    title: editingEvent?.title || "",
+    category: editingEvent?.category || "",
+    date: editingEvent
+      ? new Date(editingEvent.date).toISOString().split("T")[0]
+      : "",
+    time: editingEvent
+      ? new Date(`1970-01-01 ${editingEvent.time}`)
+        .toTimeString()
+        .slice(0, 5)
+      : "",
+    location: editingEvent?.location || "",
+    description: editingEvent?.description || "",
   });
-
+    
   const [formError, setFormError] = useState("");
 
   function handleChange(event) {
@@ -22,7 +28,7 @@ function EventForm({ onAddEvent }) {
     });
   }
 
-  function handleSubmit(event) {
+function handleSubmit(event) {
     event.preventDefault();
 
     if (
@@ -37,35 +43,40 @@ function EventForm({ onAddEvent }) {
       return;
     }
 
-    const newEvent = {
-      id: Date.now(),
-      title: formData.title,
-      category: formData.category,
-      date: formData.date,
-      time: formData.time,
-      location: formData.location,
-      description: formData.description,
-    };
+    if (editingEvent !== null) {
+      const updatedEvent = {
+        id: editingEvent.id,
+        title: formData.title,
+        category: formData.category,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location,
+        description: formData.description,
+      };
 
-    onAddEvent(newEvent);
+      onUpdateEvent(editingEvent.id, updatedEvent);
+    } else {
+      const newEvent = {
+        id: Date.now(),
+        title: formData.title,
+        category: formData.category,
+        date: formData.date,
+        time: formData.time,
+        location: formData.location,
+        description: formData.description,
+      };
 
-    setFormData({
-      title: "",
-      category: "",
-      date: "",
-      time: "",
-      location: "",
-      description: "",
-    });
+      onAddEvent(newEvent);
+    }
 
-    setFormError("");
   }
 
   return (
     <section className="event-form-section">
-      <p className="section-label">Create an Activity</p>
+      <p className="section-label">{editingEvent !== null ? "update activity" : "create activity"}</p>
 
-      <h2>Add a New Campus Event</h2>
+      <h2>{editingEvent !== null ? "Edit  campus Event" : "Add  new campus Event"}</h2>
+
 
       <form className="event-form" onSubmit={handleSubmit}>
         <div className="form-group">
@@ -151,7 +162,7 @@ function EventForm({ onAddEvent }) {
         {formError !== "" && <p className="form-error">{formError}</p>}
 
         <button className="submit-button" type="submit">
-          Add Event
+          {editingEvent !== null ? "Update Event" : "Add Event"}
         </button>
       </form>
     </section>

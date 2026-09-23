@@ -7,13 +7,13 @@ app.use(express.json());
 const initialEvents = [
   {
     id: 1,
-    title: "MERN Stack Workshop",
+    title: "Java Programming with Practical Data 23",
     category: "Technology",
     date: "25 September 2026",
     time: "10:00 AM",
     location: "Computer Lab 1",
     description:
-      "Learn the basics of MongoDB, Express, React, and Node.js through a practical workshop.",
+    "Learn Java programming through practical data exercises and examples.",
   },
   {
     id: 2,

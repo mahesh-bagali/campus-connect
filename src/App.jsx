@@ -14,6 +14,7 @@ import AboutPage from "./pages/AboutPage";
 
 function App() {
     const [events, setEvents] = useState([]);
+    const [editingEvent, setEditingEvent] = useState(null);
 
     useEffect(()=>{
         fetch("http://localhost:5000/api/events")
@@ -51,6 +52,11 @@ function App() {
         });
     }
 
+    function handleEditEvent(eventId){
+        const eventToEdit = events.find((event) => event.id === eventId);
+        setEditingEvent(eventToEdit || null);
+    }
+
     function handleUpdateEvent(eventId, updatedEvent) {
         return fetch(`http://localhost:5000/api/events/${eventId}`, {
             method: "PUT",
@@ -71,6 +77,7 @@ function App() {
                 setEvents((currentEvents) => currentEvents.map((event) => {
                     return event.id === eventId ? data : event;
                 }));
+                setEditingEvent(null);
 
                 return data;
             });
@@ -87,7 +94,10 @@ function App() {
                         <HomePage
                             events={events}
                             onAddEvent={handleAddEvent}
+                            onUpdateEvent={handleUpdateEvent}
                             onDeleteEvent={handleDeleteEvent}
+                            onEditEvent={handleEditEvent}
+                            editingEvent={editingEvent}
                         />
                     }
                 />
