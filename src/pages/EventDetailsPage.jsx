@@ -4,7 +4,7 @@ function EventDetailsPage({ events }) {
     const { eventId } = useParams();
 
     const selectedEvent = events.find(function (event) {
-        return event.id === Number(eventId);
+        return event._id === eventId;
     });
 
     if (selectedEvent === undefined) {

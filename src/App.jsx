@@ -34,7 +34,7 @@ function App() {
         })
         .then((response)=>response.json())
         .then((data)=>{
-            setEvents([...events, data]);
+            setEvents((currentEvents) => [...currentEvents, data.event]);
         });
     }
 
@@ -54,7 +54,7 @@ function App() {
     }
 
     function handleEditEvent(eventId){
-        const eventToEdit = events.find((event) => event.id === eventId);
+        const eventToEdit = events.find((event) => event._id === eventId);
         setEditingEvent(eventToEdit || null);
     }
 
@@ -76,7 +76,7 @@ function App() {
                 }
 
                 setEvents((currentEvents) => currentEvents.map((event) => {
-                    return event.id === eventId ? data : event;
+                    return event._id === eventId ? data.event : event;
                 }));
                 setEditingEvent(null);
 

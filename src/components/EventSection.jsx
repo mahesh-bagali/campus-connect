@@ -102,8 +102,8 @@ function EventSection({
           {filteredEvents.map(function (event) {
             return (
               <EventCard
-                key={event.id}
-                id={event.id}
+                key={event._id}
+                id={event._id}
                 title={event.title}
                 category={event.category}
                 date={event.date}

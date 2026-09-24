@@ -1,137 +1,91 @@
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
+
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
 const app = express();
+const dns = require("dns");
+const Event = require("./Event");
+
+
 app.use(cors());
 app.use(express.json());
+dns.setServers(['8.8.8.8']);
 
-const initialEvents = [
-  {
-    id: 1,
-    title: "Java Programming with Practical Data 23",
-    category: "Technology",
-    date: "25 September 2026",
-    time: "10:00 AM",
-    location: "Computer Lab 1",
-    description:
-    "Learn Java programming through practical data exercises and examples.",
-  },
-  {
-    id: 2,
-    title: "College Hackathon",
-    category: "Technology",
-    date: "28 September 2026",
-    time: "9:00 AM",
-    location: "Main Auditorium",
-    description:
-      "Form a team, solve a real problem, and present your solution to mentors.",
-  },
-  {
-    id: 3,
-    title: "Photography Club Meet",
-    category: "Club",
-    date: "30 September 2026",
-    time: "2:00 PM",
-    location: "Seminar Hall",
-    description:
-      "Meet fellow photography enthusiasts and learn basic composition techniques.",
-  },
-];
+app.get("/", (req, res) => {
+  res.send("Backend is working");
+});
 
-app.get("/", (req, res)=>{
-    res.send("Backend is working");
+app.get("/api/events", async (req, res) => {
+  try {
+    const events = await Event.find().sort({ createdAt: -1 });
+    res.json(events);
+  } catch {
+    res.status(500).json({ message: "Unable to fetch events" });
+  }
 })
 
-app.get("/api/events", (req, res)=>{
-    res.json(initialEvents);
-})
-
-app.post("/api/events", (req, res)=>{
-    const requiredFields = [
-        "title",
-        "category",
-        "date",
-        "time",
-        "location",
-        "description",
-    ];
-
-    const hasMissingField = requiredFields.some((field) => {
-        return typeof req.body[field] !== "string" || !req.body[field].trim();
-    });
-
-    if (hasMissingField) {
-        return res.status(400).json({
-            message: "All event fields are required",
-        });
+app.delete("/api/events/:eventId", async (req, res) => {
+  try {
+    const deletedEvent = await Event.findByIdAndDelete(req.params.eventId);
+    if (!deletedEvent) {
+      return res.status(404).json({ message: "Event not found" });
     }
-
-    const newEvent = {
-        id: initialEvents.length
-            ? Math.max(...initialEvents.map((event) => event.id)) + 1
-            : 1,
-        ...req.body,
-    };
-
-    initialEvents.push(newEvent);
-    res.status(201).json(newEvent);
-})
-
-app.put("/api/events/:id", (req, res)=>{
-    const eventId = Number(req.params.id);
-    const eventIndex = initialEvents.findIndex((event) => event.id === eventId);
-    const requiredFields = [
-        "title",
-        "category",
-        "date",
-        "time",
-        "location",
-        "description",
-    ];
-
-    const hasMissingField = requiredFields.some((field) => {
-        return typeof req.body[field] !== "string" || !req.body[field].trim();
-    });
-
-    if (eventIndex === -1) {
-        return res.status(404).json({
-            message: "Event Not Found",
-        });
-    }
-
-    if (hasMissingField) {
-        return res.status(400).json({
-            message: "All event fields are required",
-        });
-    }
-
-    const updatedEvent = {
-        id: eventId,
-        ...req.body,
-    };
-
-    initialEvents[eventIndex] = updatedEvent;
-    res.json(updatedEvent);
-})
-
-app.delete("/api/events/:id", (req, res)=>{
-    const eventId = Number(req.params.id);
-    const eventIndex = initialEvents.findIndex(function(event){
-        return event.id === eventId;
-    });
-
-    if(eventIndex === -1){
-        return res.status(404).json({
-            message: "Event Not Found"
-        });
-    }
-
-    initialEvents.splice(eventIndex, 1);
 
     res.json({
-        message: "Event Deleted Successfully"
-    })
-})
+      message: "Event Deleted Successfully",
+    });
+  } catch {
+    res.status(500).json({ message: "Unable to delete event" });
+  }
+});
 
-app.listen(5000, ()=>{
+app.post("/api/events", async (req, res) => {
+  try {
+    const newEvent = await Event.create(req.body);
+    res.json({
+      message: "Event added successfully",
+      event: newEvent,
+    });
+  } catch {
+    res.status(400).json({ message: "Unable to add event" });
+  }
+});
+
+app.put("/api/events/:eventId", async (req, res) => {
+  try {
+    const updatedEvent = await Event.findByIdAndUpdate(
+      req.params.eventId,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedEvent) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    res.json({
+      message: "Event updated successfully",
+      event: updatedEvent,
+    });
+  } catch {
+    res.status(400).json({ message: "Unable to update event" });
+  }
+});
+
+async function startServer() {
+  if (!process.env.MONGODB_URI) {
+    throw new Error("MONGODB_URI is not configured");
+  }
+
+  await mongoose.connect(process.env.MONGODB_URI);
+  console.log("Connected to MongoDB");
+  app.listen(5000, () => {
     console.log("Server is running on port 5000");
-})
+  });
+}
+
+startServer().catch((error) => {
+  console.error("Unable to start server:", error.message);
+  process.exit(1);
+});

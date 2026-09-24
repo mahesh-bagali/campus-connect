@@ -13,7 +13,7 @@ function HomePage({events,
         <Hero title="Discover what is happening in Campus"
         description="Find workshops,sports,activities,club Meeting,and opportunities to connect with other students."/>
         <EventForm
-            key={editingEvent?.id || "new-event"}
+            key={editingEvent?._id || "new-event"}
             onAddEvent={onAddEvent}
             onUpdateEvent={onUpdateEvent}
             editingEvent={editingEvent}

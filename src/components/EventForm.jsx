@@ -2,18 +2,14 @@ import { useState } from "react";
 
 function EventForm({ onAddEvent, onUpdateEvent, editingEvent }) {
   const [formData, setFormData] = useState({
-    title: editingEvent?.title || "",
-    category: editingEvent?.category || "",
-    date: editingEvent
-      ? new Date(editingEvent.date).toISOString().split("T")[0]
-      : "",
-    time: editingEvent
-      ? new Date(`1970-01-01 ${editingEvent.time}`)
-        .toTimeString()
-        .slice(0, 5)
-      : "",
-    location: editingEvent?.location || "",
-    description: editingEvent?.description || "",
+      title: editingEvent?.title || "",
+      category: editingEvent?.category || "",
+      date: editingEvent?.date
+        ? new Date(editingEvent.date).toISOString().split("T")[0]
+        : "",
+      time: editingEvent?.time || "",
+      location: editingEvent?.location || "",
+      description: editingEvent?.description || "",
   });
     
   const [formError, setFormError] = useState("");
@@ -45,7 +41,7 @@ function handleSubmit(event) {
 
     if (editingEvent !== null) {
       const updatedEvent = {
-        id: editingEvent.id,
+        _id: editingEvent._id,
         title: formData.title,
         category: formData.category,
         date: formData.date,
@@ -54,7 +50,7 @@ function handleSubmit(event) {
         description: formData.description,
       };
 
-      onUpdateEvent(editingEvent.id, updatedEvent);
+      onUpdateEvent(editingEvent._id, updatedEvent);
     } else {
       const newEvent = {
         id: Date.now(),
